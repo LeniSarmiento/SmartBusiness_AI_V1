@@ -22,3 +22,12 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+/.local/
+/.env.*
+!/.env.example
+/frontend/node_modules/
+/frontend/dist/
+/frontend/*.tsbuildinfo
+/database/*.sqlite*
+/storage/logs/*.json
+/test-results/
