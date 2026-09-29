@@ -1,0 +1,59 @@
+name: smartbusiness
+services:
+  database:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_DB: smartbusiness
+      POSTGRES_USER: smartbusiness
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Define DB_PASSWORD in .env}
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./infra/postgres/01-test-database.sql:/docker-entrypoint-initdb.d/01-test-database.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U smartbusiness -d smartbusiness"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+  api:
+    build:
+      context: .
+      target: app
+    env_file: .env
+    environment: &app-environment
+      DB_CONNECTION: pgsql
+      DB_HOST: database
+      DB_PORT: 5432
+      DB_DATABASE: smartbusiness
+      DB_USERNAME: smartbusiness
+      APP_URL: http://localhost:8080
+      FRONTEND_URL: http://localhost:8080
+      SANCTUM_STATEFUL_DOMAINS: localhost:8080,127.0.0.1:8080
+      LOG_CHANNEL: stderr
+      APP_DEBUG: "false"
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+  worker:
+    build:
+      context: .
+      target: app
+    env_file: .env
+    environment: *app-environment
+    command: ["php", "artisan", "queue:work", "--tries=3", "--timeout=60", "--sleep=3"]
+    depends_on:
+      database:
+        condition: service_healthy
+    restart: unless-stopped
+  web:
+    build:
+      context: .
+      target: web
+    ports:
+      - "127.0.0.1:8080:8080"
+    depends_on:
+      - api
+    restart: unless-stopped
+volumes:
+  postgres-data:
