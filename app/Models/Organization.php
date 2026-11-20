@@ -31,4 +31,9 @@ class Organization extends Model
     {
         return $this->hasMany(OrganizationInvitation::class);
     }
+
+    public function securityAuditLogs(): HasMany
+    {
+        return $this->hasMany(SecurityAuditLog::class);
+    }
 }

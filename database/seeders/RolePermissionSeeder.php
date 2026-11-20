@@ -12,7 +12,7 @@ class RolePermissionSeeder extends Seeder
     {
         $seller = ['customers.read', 'customers.write', 'products.read', 'sales.read', 'sales.write'];
         $manager = [...$seller, 'suppliers.read', 'suppliers.write', 'categories.read', 'categories.write', 'products.write', 'inventory.read', 'inventory.write', 'sales.cancel', 'reports.read'];
-        $admin = [...$manager, 'members.manage'];
+        $admin = [...$manager, 'members.manage', 'audit.read'];
         foreach ($admin as $name) {
             Permission::firstOrCreate(['name' => $name]);
         }

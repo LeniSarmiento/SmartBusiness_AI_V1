@@ -4,6 +4,9 @@ namespace Tests\Feature;
 
 use App\Models\Category;
 use App\Models\Organization;
+use App\Models\OrganizationInvitation;
+use App\Models\Role;
+use Illuminate\Support\Str;
 
 class AuthorizationTest extends BusinessTestCase
 {
@@ -52,5 +55,51 @@ class AuthorizationTest extends BusinessTestCase
     {
         $response = $this->actingAs($this->admin)->postJson($this->endpoint('members'), ['name' => 'Seller', 'email' => 'seller@example.com', 'password' => 'SellerPassword123', 'role' => 'seller'])->assertCreated();
         $this->patchJson($this->endpoint('members/'.$response->json('data.id')), ['role' => 'manager'])->assertOk();
+    }
+
+    public function test_cross_tenant_attacks_are_blocked_across_all_modules(): void
+    {
+        $other = Organization::create(['name' => 'Empresa objetivo']);
+        $otherAdmin = $this->member('admin', $other);
+        $otherProduct = $this->product(5, $other);
+        $otherMembership = $otherAdmin->memberships()->where('organization_id', $other->id)->firstOrFail();
+        $otherInvitation = OrganizationInvitation::create([
+            'organization_id' => $other->id,
+            'invited_by' => $otherAdmin->id,
+            'email' => 'target@example.com',
+            'role_id' => Role::where('name', 'seller')->firstOrFail()->id,
+            'token' => Str::random(64),
+            'expires_at' => now()->addDay(),
+        ]);
+
+        foreach (['dashboard', 'customers', 'suppliers', 'categories', 'products', 'inventory-movements', 'sales', 'members', 'invitations', 'ai/tools', 'security-audit-logs'] as $path) {
+            $this->actingAs($this->admin)
+                ->getJson("/api/v1/organizations/{$other->id}/{$path}")
+                ->assertNotFound();
+        }
+
+        $this->postJson($this->endpoint('inventory-movements'), [
+            'product_id' => $otherProduct->id,
+            'type' => 'entry',
+            'quantity' => 1,
+            'reason' => 'Intento entre empresas',
+        ])->assertUnprocessable();
+        $this->postJson($this->endpoint('sales'), [
+            'request_key' => (string) Str::uuid(),
+            'items' => [['product_id' => $otherProduct->id, 'quantity' => 1]],
+        ])->assertUnprocessable();
+        $this->patchJson($this->endpoint("members/{$otherMembership->id}"), ['role' => 'seller'])->assertNotFound();
+        $this->deleteJson($this->endpoint("invitations/{$otherInvitation->id}"))->assertNotFound();
+        $this->postJson($this->endpoint('ai/tools/execute'), [
+            'tool' => 'adjust_inventory',
+            'arguments' => [
+                'product_id' => $otherProduct->id,
+                'type' => 'entry',
+                'quantity' => 1,
+                'reason' => 'Intento IA entre empresas',
+            ],
+        ])->assertUnprocessable();
+
+        $this->assertSame(5, $otherProduct->refresh()->current_stock);
     }
 }

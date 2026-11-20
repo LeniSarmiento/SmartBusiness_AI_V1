@@ -20,6 +20,7 @@ Sistema SaaS multiempresa para gestionar clientes, proveedores, productos, inven
 - Dashboard con ventas diarias/mensuales, tendencia, rankings y stock bajo.
 - Interfaz adaptable a móvil, búsqueda, paginación y mensajes de error.
 - Tests sobre PostgreSQL, incluyendo dos procesos vendiendo la última unidad.
+- Hardening con CSP, CORS explícito, rate limits por operación, límite de solicitudes, auditoría sensible y pruebas de ataques multiempresa.
 
 ## Tecnologías
 
@@ -94,6 +95,8 @@ El frontend redirige /api y /sanctum hacia el backend durante desarrollo. Usa si
 | APP_KEY | Cifrado; generar una vez y conservar de forma segura |
 | APP_ENV / APP_DEBUG | local/true para desarrollo; production/false al publicar |
 | APP_URL / FRONTEND_URL | URL de API y frontend |
+| CORS_ALLOWED_ORIGINS | Orígenes exactos autorizados, separados por coma; nunca `*` con cookies |
+| MAX_REQUEST_BYTES | Tamaño máximo aceptado por Laravel; 1048576 por defecto |
 | DB_* | Credenciales y conexión PostgreSQL |
 | DB_SSLMODE | prefer local; verify-full en cloud con certificados configurados |
 | SANCTUM_STATEFUL_DOMAINS | Hosts y puertos de la SPA, sin esquema |
@@ -146,6 +149,7 @@ main contiene la instalación inicial; feat/smartbusiness-v1 contiene commits se
 - [Modelo de datos](docs/database.md)
 - [Endpoints y ejemplos](docs/api.md)
 - [Estrategia de pruebas](docs/testing.md)
+- [Seguridad operativa y checklist](docs/security.md)
 - [Guía Azure y despliegue](infra/azure/README.md)
 - [Roadmap y primera tarea de mentoría](docs/roadmap.md)
 

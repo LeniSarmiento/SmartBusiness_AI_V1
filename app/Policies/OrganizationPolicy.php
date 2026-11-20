@@ -11,6 +11,7 @@ class OrganizationPolicy
     {
         return $user->memberships()
             ->where('organization_id', $organization->id)
+            ->where('active', true)
             ->whereHas('role.permissions', fn ($query) => $query->where('name', $permission))
             ->exists();
     }

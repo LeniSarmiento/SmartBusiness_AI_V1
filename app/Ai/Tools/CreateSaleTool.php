@@ -5,7 +5,6 @@ namespace App\Ai\Tools;
 use App\Models\Organization;
 use App\Models\User;
 use App\Services\SaleService;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 class CreateSaleTool extends BaseTool
@@ -60,20 +59,16 @@ class CreateSaleTool extends BaseTool
                 ],
                 'request_key' => [
                     'type' => 'string',
-                    'description' => 'Clave de idempotencia UUID v4 opcional. Si no se provee, el sistema genera una automáticamente.',
+                    'description' => 'Clave de idempotencia UUID v4 obligatoria. Debe reutilizarse al reintentar la misma operación.',
                 ],
             ],
-            'required' => ['items'],
+            'required' => ['items', 'request_key'],
         ];
     }
 
     public function execute(Organization $organization, User $user, array $arguments): array
     {
         $this->authorize($organization, $user);
-
-        if (empty($arguments['request_key'])) {
-            $arguments['request_key'] = (string) Str::uuid();
-        }
 
         $validated = $this->validate($arguments, [
             'request_key' => ['required', 'uuid'],

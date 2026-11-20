@@ -34,7 +34,7 @@ class ToolExecutor
         }
 
         // Enforce membership verification at runtime
-        $isMember = $user->memberships()->where('organization_id', $organization->id)->exists();
+        $isMember = $user->memberships()->where('organization_id', $organization->id)->where('active', true)->exists();
         if (! $isMember) {
             return [
                 'success' => false,
@@ -82,10 +82,12 @@ class ToolExecutor
                 'code' => 'HTTP_'.$e->getStatusCode(),
             ];
         } catch (Throwable $e) {
+            report($e);
+
             return [
                 'success' => false,
                 'tool' => $toolName,
-                'error' => $e->getMessage(),
+                'error' => 'No fue posible ejecutar la herramienta. Consulta los registros con el identificador de la solicitud.',
                 'code' => 'EXECUTION_ERROR',
             ];
         }

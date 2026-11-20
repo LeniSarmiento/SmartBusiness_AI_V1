@@ -24,6 +24,16 @@ La imagen api usa www-data, y no contiene secretos. Nginx es el único punto de 
 7. Configurar el proveedor de correo y verificar recuperación de contraseña.
 8. Configurar OIDC entre GitHub y Azure. Dar acceso de publicación en ACR y despliegue únicamente a estos recursos. Crear el environment production de GitHub con revisores si corresponde.
 
+## Permisos mínimos
+
+- La identidad federada de GitHub no debe ser `Owner`, `Contributor` de la suscripción ni `User Access Administrator`. Limitarla al grupo de recursos de SmartBusiness y, cuando sea viable, usar un rol personalizado con lectura de la Container App/Job y permiso para actualizar imágenes e iniciar/consultar el job.
+- Para ACR, asignar `AcrPush` a la identidad de despliegue únicamente sobre ese registro. La identidad administrada de Container Apps necesita solo `AcrPull`.
+- La identidad de ejecución puede leer únicamente los secretos concretos de Key Vault requeridos por la aplicación. No debe crear, borrar ni listar secretos de otros proyectos.
+- Mantener PostgreSQL en red privada, sin acceso público general. Permitir únicamente el entorno de Container Apps y conexiones administrativas controladas.
+- Separar `smartbusiness_migrator` y `smartbusiness_app`: el job de migración usa el primero; api y worker usan el segundo sin `CREATE`, `ALTER`, `DROP`, superusuario, creación de roles o bases. La plantilla está en `infra/postgres/least-privilege-roles.sql.example`.
+- Un rol opcional `smartbusiness_readonly` puede usarse para soporte/reportes. No reutilizar la credencial de la aplicación en herramientas humanas.
+- Revisar asignaciones RBAC, accesos de Key Vault, reglas de red y usuarios PostgreSQL trimestralmente y después de cada incidente o cambio de personal.
+
 Variables GitHub del environment production:
 
 AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID, AZURE_RESOURCE_GROUP, AZURE_ACR_NAME, AZURE_CONTAINER_APP y AZURE_MIGRATION_JOB.
@@ -35,6 +45,8 @@ Desde main, ejecutar Deploy Azure (manual). Primero repite CI, luego construye/p
 Usar migraciones compatibles con la versión anterior (expand/contract), ya que el código anterior sigue atendiendo mientras se migra. Si la migración falla, la app no se actualiza. El script no revierte una migración parcialmente aplicada: revisar los logs y corregirla antes del siguiente intento.
 
 Tras desplegar, comprobar readiness, login, registro, permisos, una venta/anulación y logs del worker. Conservar una revisión anterior para rollback de código; restaurar DB requiere un procedimiento y copias previamente probados.
+
+Comprobar además CSP, cookies Secure/HttpOnly/SameSite, CORS desde un origen no autorizado, respuesta 413 para cuerpos mayores a 1 MiB, rate limits y consulta de auditoría. Usa `docs/security.md` como checklist.
 
 ## Fuentes oficiales
 

@@ -6,6 +6,7 @@ use App\Ai\ToolExecutor;
 use App\Ai\ToolRegistry;
 use App\Models\Organization;
 use App\Models\Sale;
+use Illuminate\Support\Str;
 use Tests\Feature\BusinessTestCase;
 
 class ToolCallingTest extends BusinessTestCase
@@ -132,6 +133,7 @@ class ToolCallingTest extends BusinessTestCase
         $product = $this->product(10);
 
         $result = $this->executor->execute($this->organization, $seller, 'create_sale', [
+            'request_key' => (string) Str::uuid(),
             'items' => [
                 ['product_id' => $product->id, 'quantity' => 3],
             ],
@@ -155,6 +157,7 @@ class ToolCallingTest extends BusinessTestCase
         $product = $this->product(2);
 
         $result = $this->executor->execute($this->organization, $seller, 'create_sale', [
+            'request_key' => (string) Str::uuid(),
             'items' => [
                 ['product_id' => $product->id, 'quantity' => 5],
             ],
@@ -173,6 +176,7 @@ class ToolCallingTest extends BusinessTestCase
 
         // First make a sale
         $saleResult = $this->executor->execute($this->organization, $manager, 'create_sale', [
+            'request_key' => (string) Str::uuid(),
             'items' => [
                 ['product_id' => $product->id, 'quantity' => 4],
             ],
@@ -202,6 +206,7 @@ class ToolCallingTest extends BusinessTestCase
         $product = $this->product(10);
 
         $this->executor->execute($this->organization, $manager, 'create_sale', [
+            'request_key' => (string) Str::uuid(),
             'items' => [
                 ['product_id' => $product->id, 'quantity' => 2],
             ],
@@ -237,6 +242,7 @@ class ToolCallingTest extends BusinessTestCase
             ->postJson($this->endpoint('ai/tools/execute'), [
                 'tool' => 'create_sale',
                 'arguments' => [
+                    'request_key' => (string) Str::uuid(),
                     'items' => [
                         ['product_id' => $product->id, 'quantity' => 1],
                     ],

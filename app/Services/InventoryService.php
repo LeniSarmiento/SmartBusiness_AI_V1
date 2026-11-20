@@ -12,13 +12,32 @@ use Illuminate\Validation\ValidationException;
 
 class InventoryService
 {
+    public function __construct(private SecurityAuditService $audit) {}
+
     public function adjust(Organization $organization, User $user, array $data): InventoryMovement
     {
         return DB::transaction(function () use ($organization, $user, $data) {
             $product = Product::forOrganization($organization)->lockForUpdate()->findOrFail($data['product_id']);
             $decrease = $data['type'] === 'exit' || ($data['type'] === 'adjustment' && $data['direction'] === 'decrease');
+            $before = ['current_stock' => $product->current_stock];
+            $movement = $this->record($product, $user, (int) $data['quantity'] * ($decrease ? -1 : 1), MovementType::from($data['type']), $data['reason']);
 
-            return $this->record($product, $user, (int) $data['quantity'] * ($decrease ? -1 : 1), MovementType::from($data['type']), $data['reason']);
+            $this->audit->record(
+                $organization,
+                $user,
+                'inventory.adjusted',
+                $product,
+                $before,
+                ['current_stock' => $movement->balance_after],
+                [
+                    'movement_id' => $movement->id,
+                    'type' => $movement->type->value,
+                    'quantity_delta' => $movement->quantity_delta,
+                    'reason' => $movement->reason,
+                ]
+            );
+
+            return $movement;
         }, 3);
     }
 

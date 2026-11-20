@@ -16,7 +16,10 @@ use Illuminate\Validation\ValidationException;
 
 class SaleService
 {
-    public function __construct(private InventoryService $inventory) {}
+    public function __construct(
+        private InventoryService $inventory,
+        private SecurityAuditService $audit,
+    ) {}
 
     public function create(Organization $organization, User $seller, array $data): Sale
     {
@@ -94,6 +97,15 @@ class SaleService
                 $this->inventory->record($product, $user, $item->quantity, MovementType::Cancellation, "Anulación #{$sale->number}: {$reason}", $sale->id);
             }
             $sale->update(['status' => SaleStatus::Cancelled, 'cancelled_at' => now(), 'cancelled_by' => $user->id, 'cancellation_reason' => $reason]);
+            $this->audit->record(
+                $organization,
+                $user,
+                'sale.cancelled',
+                $sale,
+                ['status' => SaleStatus::Completed->value],
+                ['status' => SaleStatus::Cancelled->value, 'cancelled_at' => $sale->cancelled_at?->toIso8601String()],
+                ['reason' => $reason]
+            );
 
             return $sale->load('items', 'seller');
         }, 3);

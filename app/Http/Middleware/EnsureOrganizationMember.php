@@ -18,10 +18,6 @@ class EnsureOrganizationMember
         $membership = $request->user()->memberships()->where('organization_id', $organization->id)->with('role.permissions')->first();
         abort_unless($membership, 404);
         if (! $membership->active) {
-            if ($request->hasSession()) {
-                $request->session()->invalidate();
-                $request->session()->regenerateToken();
-            }
             abort(403, 'Tu membresía en esta organización ha sido desactivada.');
         }
         $request->attributes->set('membership', $membership);

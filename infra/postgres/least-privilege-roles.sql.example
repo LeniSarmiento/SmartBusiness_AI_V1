@@ -1,0 +1,31 @@
+-- Plantilla: ejecutar como propietario de la base y reemplazar nombres/secretos.
+-- No se monta automáticamente en Docker ni contiene contraseñas reales.
+
+REVOKE CREATE ON SCHEMA public FROM PUBLIC;
+REVOKE ALL ON DATABASE smartbusiness FROM PUBLIC;
+
+CREATE ROLE smartbusiness_migrator LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD 'REPLACE_ME';
+CREATE ROLE smartbusiness_app LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD 'REPLACE_ME';
+CREATE ROLE smartbusiness_readonly LOGIN NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION PASSWORD 'REPLACE_ME';
+
+GRANT CONNECT ON DATABASE smartbusiness TO smartbusiness_migrator, smartbusiness_app, smartbusiness_readonly;
+GRANT USAGE, CREATE ON SCHEMA public TO smartbusiness_migrator;
+GRANT USAGE ON SCHEMA public TO smartbusiness_app, smartbusiness_readonly;
+
+-- Ejecutar migraciones como smartbusiness_migrator. Los objetos nuevos heredarán estos permisos.
+ALTER DEFAULT PRIVILEGES FOR ROLE smartbusiness_migrator IN SCHEMA public
+    GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO smartbusiness_app;
+ALTER DEFAULT PRIVILEGES FOR ROLE smartbusiness_migrator IN SCHEMA public
+    GRANT USAGE, SELECT, UPDATE ON SEQUENCES TO smartbusiness_app;
+ALTER DEFAULT PRIVILEGES FOR ROLE smartbusiness_migrator IN SCHEMA public
+    GRANT SELECT ON TABLES TO smartbusiness_readonly;
+
+-- Aplicar también si ya existen tablas creadas por el rol migrador.
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO smartbusiness_app;
+GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO smartbusiness_app;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO smartbusiness_readonly;
+
+ALTER ROLE smartbusiness_app SET statement_timeout = '15s';
+ALTER ROLE smartbusiness_app SET idle_in_transaction_session_timeout = '30s';
+ALTER ROLE smartbusiness_app SET lock_timeout = '5s';
+

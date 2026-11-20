@@ -10,6 +10,7 @@ use App\Services\SaleService;
 use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Str;
 
 class AuthLifecycleTest extends BusinessTestCase
@@ -58,9 +59,16 @@ class AuthLifecycleTest extends BusinessTestCase
         $this->actingAs($user)->postJson('/api/v1/auth/email/resend')->assertOk();
         Notification::assertSentTo($user, VerifyEmail::class);
 
-        // Verification endpoint marks as verified
+        // Unsigned verification attempts are rejected.
         $hash = sha1($user->getEmailForVerification());
-        $this->getJson("/api/v1/auth/email/verify/{$user->id}/{$hash}")->assertOk();
+        $this->getJson("/api/v1/auth/email/verify/{$user->id}/{$hash}")->assertForbidden();
+
+        // A valid temporary signed URL marks the address as verified.
+        $signedUrl = URL::temporarySignedRoute('verification.verify', now()->addMinutes(10), [
+            'id' => $user->id,
+            'hash' => $hash,
+        ]);
+        $this->getJson($signedUrl)->assertOk();
 
         $this->assertTrue($user->refresh()->hasVerifiedEmail());
 

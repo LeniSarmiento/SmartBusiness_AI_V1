@@ -10,6 +10,7 @@ use App\Models\Organization;
 use App\Models\OrganizationMembership;
 use App\Models\Role;
 use App\Models\User;
+use App\Services\UserSessionService;
 use Illuminate\Auth\Events\PasswordReset;
 use Illuminate\Auth\Events\Verified;
 use Illuminate\Http\Request;
@@ -17,7 +18,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\Rules\Password as PasswordRule;
 use Illuminate\Validation\ValidationException;
@@ -102,7 +102,7 @@ class AuthController extends Controller
         return $this->me($request);
     }
 
-    public function changePassword(Request $request)
+    public function changePassword(Request $request, UserSessionService $sessions)
     {
         $data = $request->validate([
             'current_password' => ['required', 'current_password:web'],
@@ -112,15 +112,9 @@ class AuthController extends Controller
         $user = $request->user();
         $user->forceFill([
             'password' => Hash::make($data['password']),
-            'remember_token' => Str::random(60),
         ])->save();
 
-        if ($request->hasSession()) {
-            DB::table('sessions')
-                ->where('user_id', $user->id)
-                ->where('id', '!=', $request->session()->getId())
-                ->delete();
-        }
+        $sessions->revoke($user, $request->hasSession() ? $request->session()->getId() : null);
 
         return response()->json(['message' => 'Contraseña actualizada correctamente.']);
     }
@@ -164,7 +158,7 @@ class AuthController extends Controller
         return response()->json(['message' => 'Si el correo está registrado, recibirás un enlace para restablecer tu contraseña.']);
     }
 
-    public function reset(Request $request)
+    public function reset(Request $request, UserSessionService $sessions)
     {
         $data = $request->validate([
             'token' => ['required', 'string'],
@@ -172,9 +166,9 @@ class AuthController extends Controller
             'password' => ['required', 'confirmed', 'max:72', PasswordRule::min(12)->mixedCase()->numbers()],
         ]);
 
-        $status = Password::reset($data, function (User $user, string $password) {
-            $user->forceFill(['password' => Hash::make($password), 'remember_token' => Str::random(60)])->save();
-            DB::table('sessions')->where('user_id', $user->id)->delete();
+        $status = Password::reset($data, function (User $user, string $password) use ($sessions) {
+            $user->forceFill(['password' => Hash::make($password)])->save();
+            $sessions->revoke($user);
             event(new PasswordReset($user));
         });
 
