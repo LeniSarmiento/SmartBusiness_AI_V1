@@ -7,7 +7,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class OrganizationMembership extends Model
 {
-    protected $fillable = ['organization_id', 'user_id', 'role_id'];
+    protected $fillable = ['organization_id', 'user_id', 'role_id', 'active', 'deactivated_at'];
+
+    protected function casts(): array
+    {
+        return [
+            'active' => 'boolean',
+            'deactivated_at' => 'datetime',
+        ];
+    }
 
     public function organization(): BelongsTo
     {

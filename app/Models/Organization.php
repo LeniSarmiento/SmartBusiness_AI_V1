@@ -26,4 +26,9 @@ class Organization extends Model
     {
         return $this->belongsToMany(User::class, 'organization_memberships')->withPivot('role_id');
     }
+
+    public function invitations(): HasMany
+    {
+        return $this->hasMany(OrganizationInvitation::class);
+    }
 }
