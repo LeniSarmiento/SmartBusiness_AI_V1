@@ -23,7 +23,7 @@ jobs:
       AZURE_MIGRATION_JOB: ${{ vars.AZURE_MIGRATION_JOB }}
       AZURE_ACR_NAME: ${{ vars.AZURE_ACR_NAME }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v4
         with:
           node-version: 24
