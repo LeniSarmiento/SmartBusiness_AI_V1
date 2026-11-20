@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AiToolController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CategoryController;
 use App\Http\Controllers\Api\V1\CustomerController;
@@ -37,6 +38,8 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
             Route::get('members', [MemberController::class, 'index']);
             Route::post('members', [MemberController::class, 'store']);
             Route::patch('members/{member}', [MemberController::class, 'update'])->whereNumber('member');
+            Route::get('ai/tools', [AiToolController::class, 'index']);
+            Route::post('ai/tools/execute', [AiToolController::class, 'execute']);
         });
     });
 });

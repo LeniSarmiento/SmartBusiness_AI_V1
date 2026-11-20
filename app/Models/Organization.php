@@ -12,6 +12,11 @@ class Organization extends Model
 
     protected $hidden = ['next_sale_number'];
 
+    protected $attributes = [
+        'currency' => 'COP',
+        'timezone' => 'America/Bogota',
+    ];
+
     public function memberships(): HasMany
     {
         return $this->hasMany(OrganizationMembership::class);
