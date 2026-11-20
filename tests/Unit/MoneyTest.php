@@ -31,4 +31,33 @@ class MoneyTest extends TestCase
         $this->expectException(\InvalidArgumentException::class);
         Money::cents('1.001');
     }
+
+    public static function invalidAmounts(): array
+    {
+        return [
+            'negative input' => ['-1.00'],
+            'comma decimal separator' => ['1,50'],
+            'scientific notation' => ['1e3'],
+            'too many whole digits' => ['10000000000.00'],
+            'empty input' => [''],
+        ];
+    }
+
+    #[DataProvider('invalidAmounts')]
+    public function test_invalid_money_formats_are_rejected(string $input): void
+    {
+        $this->expectException(\InvalidArgumentException::class);
+        Money::cents($input);
+    }
+
+    public function test_decimal_formats_negative_and_zero_minor_units(): void
+    {
+        $this->assertSame('-12.34', Money::decimal(-1234));
+        $this->assertSame('0.00', Money::decimal(0));
+    }
+
+    public function test_zero_tax_never_changes_the_subtotal(): void
+    {
+        $this->assertSame(0, Money::tax(999999999999, 0));
+    }
 }

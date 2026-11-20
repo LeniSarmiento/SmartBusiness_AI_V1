@@ -33,7 +33,7 @@ class ProductController extends Controller
     public function store(ProductRequest $request, Organization $organization)
     {
         Gate::authorize('permission', [$organization, 'products.write']);
-        $model = Product::create([...$request->validated(), 'organization_id' => $organization->id]);
+        $model = Product::create([...$request->validated(), 'organization_id' => $organization->id])->refresh();
 
         return (new ProductResource($model))->response()->setStatusCode(201);
     }

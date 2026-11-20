@@ -1,6 +1,9 @@
 export function cents(value: string): number {
+    if (!/^\d{1,10}(\.\d{1,2})?$/.test(value)) {
+        throw new Error("Invalid money");
+    }
     const [whole, fraction = ""] = value.split(".");
-    return Number(whole) * 100 + Number(fraction.padEnd(2, "0").slice(0, 2));
+    return Number(whole) * 100 + Number(fraction.padEnd(2, "0"));
 }
 export function lineTotal(
     price: string,

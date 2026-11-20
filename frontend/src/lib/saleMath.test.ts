@@ -20,4 +20,18 @@ describe("Sale preview", () => {
             total: 6,
         });
     });
+
+    it("keeps large valid totals in integer minor units", () => {
+        expect(lineTotal("99999999.99", 10, 1900)).toEqual({
+            subtotal: 99999999990,
+            tax: 18999999998,
+            total: 118999999988,
+        });
+    });
+
+    it("rejects malformed monetary input", () => {
+        expect(() => cents("1.001")).toThrow("Invalid money");
+        expect(() => cents("1e3")).toThrow("Invalid money");
+        expect(() => cents("-1.00")).toThrow("Invalid money");
+    });
 });

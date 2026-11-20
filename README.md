@@ -108,14 +108,17 @@ Localmente, los enlaces de recuperación se escriben en storage/logs/laravel.log
 
 ```powershell
 .\scripts\php.ps1 vendor/bin/phpunit
+.\scripts\php.ps1 vendor/bin/phpunit --testsuite Unit
+.\scripts\php.ps1 vendor/bin/phpunit --testsuite Integration
+.\scripts\php.ps1 vendor/bin/phpunit --testsuite Functional
 php vendor/bin/pint --test
 npm --prefix frontend test
 npm --prefix frontend run build
 ```
 
-En PHP con pdo_pgsql ya habilitado: `php artisan test`. En XAMPP se usa PHPUnit directamente porque el subproceso de artisan test no hereda la opción -d de PHP. PHPUnit fija **smartbusiness_test**, nunca la base de desarrollo. La prueba de concurrencia levanta dos procesos PHP y verifica que solo uno puede vender la última unidad.
+En PHP con pdo_pgsql ya habilitado: `php artisan test`. En XAMPP se usa PHPUnit directamente porque el subproceso de artisan test no hereda la opción -d de PHP. PHPUnit fija **smartbusiness_test**, nunca la base de desarrollo. Las suites se ejecutan secuencialmente porque las pruebas con migraciones reconstruyen esa base. La prueba de concurrencia levanta dos procesos PHP y verifica que solo uno puede vender la última unidad.
 
-Cobertura funcional: autenticación, CSRF, rate limit, permisos, aislamiento, claves foráneas, stock negativo, dinero, rollback, idempotencia, anulaciones, catálogo, zonas horarias y concurrencia. No equivale a una auditoría de seguridad ni a una prueba de carga.
+Cobertura: unidades monetarias aisladas; integración de servicios con PostgreSQL; flujo funcional completo desde el registro de una empresa hasta una venta y su anulación; autenticación, CSRF, rate limit, permisos, aislamiento, claves foráneas, stock negativo, rollback, idempotencia, catálogo, zonas horarias y concurrencia. Consulta [la estrategia de pruebas](docs/testing.md). No equivale a una auditoría de seguridad ni a una prueba de carga.
 
 ## Docker
 
@@ -142,6 +145,7 @@ main contiene la instalación inicial; feat/smartbusiness-v1 contiene commits se
 - [Arquitectura y decisiones](docs/architecture.md)
 - [Modelo de datos](docs/database.md)
 - [Endpoints y ejemplos](docs/api.md)
+- [Estrategia de pruebas](docs/testing.md)
 - [Guía Azure y despliegue](infra/azure/README.md)
 - [Roadmap y primera tarea de mentoría](docs/roadmap.md)
 
