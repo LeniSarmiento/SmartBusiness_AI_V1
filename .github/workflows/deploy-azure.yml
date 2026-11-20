@@ -33,7 +33,7 @@ jobs:
           test -n "$AZURE_CONTAINER_APP"
           test -n "$AZURE_MIGRATION_JOB"
           test -n "$AZURE_ACR_NAME"
-      - uses: azure/login@v2
+      - uses: azure/login@v3
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
