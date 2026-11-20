@@ -27,7 +27,7 @@ USER www-data
 EXPOSE 9000
 CMD ["php-fpm", "-F"]
 
-FROM nginx:1.28-alpine AS web
+FROM nginx:1.29-alpine AS web
 ENV API_UPSTREAM=api:9000
 COPY infra/nginx/default.conf.template /etc/nginx/templates/default.conf.template
 COPY --from=frontend /app/dist /usr/share/nginx/html
