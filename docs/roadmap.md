@@ -17,13 +17,16 @@ Implementado localmente: esquema, organizaciones, membresías, roles, permisos, 
 ## Siguiente etapa
 
 - PHP 8.3+ / Laravel 13 antes de finalizar el soporte de Laravel 12.
-- Invitaciones con aceptación, cambio de contraseña desde perfil y correo verificado.
-- Auditoría ampliada e índices a partir de métricas reales.
-- Asistente con Tool Calling, permisos del backend y salidas estructuradas.
-- RAG separado con documentos, jobs de extracción, embeddings y recuperación filtrada por empresa.
-- Alertas con notificaciones y métricas de observabilidad.
+- Conectar el Tool Calling existente a un proveedor LLM mediante Laravel AI SDK y crear la experiencia de chat en React.
+- Añadir RAG multiempresa: documentos, extracción en cola, embeddings, búsqueda vectorial, citas y autorización por organización.
+- Implementar múltiples almacenes siguiendo `docs/multi-warehouse-roadmap.md`; actualmente solo existe el diseño.
+- Configurar correo real, dominio, HTTPS y pruebas de entrega para verificación, invitaciones, recuperación y alertas de stock.
+- Aprovisionar y probar Azure: Container Apps, PostgreSQL, ACR, Key Vault, OIDC, migraciones y rollback.
+- Incorporar observabilidad en producción: métricas, trazas, alertas, fallos de Jobs, copias de seguridad y restauración comprobada.
+- Ejecutar pruebas de carga y usar sus resultados para decidir índices y optimizaciones; completar una auditoría de seguridad externa.
+- Definir el alcance de negocio pendiente: compras a proveedores, pagos, facturación fiscal, múltiples monedas y roles personalizados.
 
-La IA no está implementada en esta V1 y no hay respuestas ni datos simulados de un modelo.
+El backend de Tool Calling ya está implementado con cuatro herramientas, permisos y aislamiento multiempresa. Todavía no existe un asistente conectado a un modelo, Laravel AI SDK, RAG, embeddings ni agentes autónomos.
 
 ## Primera tarea para estudiar lo construido
 

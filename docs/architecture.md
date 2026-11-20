@@ -45,6 +45,6 @@ Laravel y cada conexión PostgreSQL utilizan UTC. Los indicadores diarios y mens
 
 ## Límites deliberados
 
-Roles globales fijos; membresías por empresa; cuentas existentes no se pueden incorporar sin un futuro proceso de invitación aceptada. La V1 crea usuarios nuevos para el equipo. Dashboard con últimos 30 días y rankings mensuales. Sin IA ni RAG todavía. Google Fonts es opcional y tiene fuentes locales de respaldo.
+Roles globales fijos y membresías por empresa. Las invitaciones permiten incorporar usuarios nuevos o cuentas existentes mediante aceptación segura. Dashboard con últimos 30 días y rankings mensuales. El backend de Tool Calling existe, pero todavía no hay asistente conectado a un modelo ni RAG. Google Fonts es opcional y tiene fuentes locales de respaldo.
 
 Laravel 12 se conserva por el PHP 8.2 instalado. Su soporte de seguridad finaliza el 24-02-2027 según [la política oficial](https://laravel.com/docs/12.x/releases); antes de publicar a largo plazo se debe migrar a PHP 8.3+ y Laravel 13.

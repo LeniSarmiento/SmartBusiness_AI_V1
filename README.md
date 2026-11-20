@@ -2,7 +2,7 @@
 
 Sistema SaaS multiempresa para gestionar clientes, proveedores, productos, inventario y ventas. API REST con Laravel y PostgreSQL; interfaz React + TypeScript + Vite. Proyecto de portafolio con autorización, integridad de datos y pruebas reales.
 
-> La V1 implementa gestión empresarial. El asistente IA, Tool Calling y RAG pertenecen al roadmap y todavía no están implementados.
+> La V1 implementa gestión empresarial y el backend de Tool Calling con permisos. El asistente conectado a un modelo, Laravel AI SDK y RAG pertenecen a la siguiente etapa.
 
 ## Vista del producto
 
@@ -11,16 +11,18 @@ Sistema SaaS multiempresa para gestionar clientes, proveedores, productos, inven
 ## Funcionalidades
 
 - Registro de empresa y administrador, login/logout con cookies Sanctum, perfil y recuperación de contraseña.
+- Verificación de correo, cambio de contraseña, invitaciones y activación o desactivación segura de miembros.
 - Roles administrador, gerente y vendedor, con permisos por empresa.
 - Clientes y compras; proveedores y productos asociados.
 - Categorías y productos con SKU único por empresa, precios e impuestos configurables.
-- Entradas, salidas y ajustes, historial y detección de stock bajo.
+- Entradas, salidas y ajustes con motivos y referencias; filtros, exportación CSV, alertas persistentes y valorización de inventario.
 - Ventas con precios calculados por el servidor, transacciones, bloqueo de filas e idempotencia.
 - Anulaciones con movimientos inversos y preservación del historial.
 - Dashboard con ventas diarias/mensuales, tendencia, rankings y stock bajo.
 - Interfaz adaptable a móvil, búsqueda, paginación y mensajes de error.
 - Tests sobre PostgreSQL, incluyendo dos procesos vendiendo la última unidad.
 - Hardening con CSP, CORS explícito, rate limits por operación, límite de solicitudes, auditoría sensible y pruebas de ataques multiempresa.
+- Tool Calling protegido para ajustar inventario, crear o anular ventas y consultar indicadores; aún no está conectado a un proveedor LLM.
 
 ## Tecnologías
 
@@ -188,6 +190,6 @@ main contiene la instalación inicial; feat/smartbusiness-v1 contiene commits se
 
 ## Estado y límites
 
-La aplicación funciona localmente. GitHub remoto, correo real, dominio, TLS y recursos Azure requieren tu configuración. No incluye pagos, factura fiscal, compras a proveedores, almacenes múltiples, roles personalizados, invitaciones de cuentas existentes ni IA. Cantidades enteras y una moneda base por empresa.
+La aplicación funciona localmente y está publicada en GitHub. Correo real, dominio, TLS y recursos Azure requieren configuración externa. No incluye pagos, factura fiscal, compras a proveedores, almacenes múltiples, roles personalizados, asistente LLM ni RAG. Cantidades enteras y una moneda base por empresa.
 
 Antes de un uso empresarial real: revisa reglas fiscales y de redondeo del país, configura copias de seguridad con restauración probada, monitoreo, correo, acceso de red y versiones soportadas de PHP/Laravel. Las tasas del catálogo demo son ilustrativas.
