@@ -74,6 +74,18 @@ También puedes crear una empresa vacía desde “Crea tu empresa”.
 
 ## Instalación desde un clon limpio
 
+La ruta más corta en Windows requiere únicamente Git y Docker Desktop:
+
+```powershell
+git clone https://github.com/LeniSarmiento/SmartBusiness_AI_V1.git
+cd SmartBusiness_AI_V1
+.\scripts\docker-install.ps1 -DemoData
+```
+
+El script crea `.env` si falta, genera `APP_KEY` y una contraseña PostgreSQL locales, construye las imágenes, migra, ejecuta los seeders, espera los health checks y obliga al worker a procesar un Job. No imprime los secretos generados ni elimina volúmenes existentes.
+
+Para una instalación nativa sin Docker:
+
 Requisitos: PHP >= 8.2 con pdo_pgsql, mbstring, openssl, bcmath, dom y xml; Composer; Node 22.12+ o 24; PostgreSQL 17.
 
 1. `composer install`
@@ -125,21 +137,42 @@ Cobertura: unidades monetarias aisladas; integración de servicios con PostgreSQ
 
 ## Docker
 
-1. Crea .env y genera APP_KEY; define una contraseña de desarrollo para DB_PASSWORD.
+Instalación completa con datos demostrativos:
+
+```powershell
+.\scripts\docker-install.ps1 -DemoData
+```
+
+Sin datos demo: `.\scripts\docker-install.ps1`. Para otro puerto o un stack aislado: `.\scripts\docker-install.ps1 -ProjectName smartbusiness-prueba -Port 18080 -DemoData`.
+
+Operación manual equivalente:
+
+1. Copia `.env.example` a `.env`, genera `APP_KEY` y define `DB_PASSWORD`.
 2. `docker compose build`.
-3. `docker compose up -d database`.
+3. `docker compose up -d --wait database`.
 4. `docker compose run --rm api php artisan migrate --seed --force`.
-5. Opcional local: `docker compose run --rm api php artisan db:seed --class=DemoSeeder`.
-6. `docker compose up -d`.
-7. Abre **http://localhost:8080**.
+5. Opcional local: `docker compose run --rm api php artisan db:seed --class=DemoSeeder --force`.
+6. `docker compose up -d --wait`.
+7. `docker compose exec -T api php artisan app:queue-smoke --timeout=45`.
+8. Abre **http://localhost:8080**.
 
 Servicios: Nginx sirve React y dirige la API a PHP-FPM; api ejecuta Laravel; worker procesa el listener de ventas; database persiste PostgreSQL en un volumen. La base no expone un puerto público. La imagen final excluye dependencias de desarrollo y secretos.
 
-Los contenedores no se ejecutaron en la máquina de entrega porque Docker no está instalado. El workflow CI incluye la construcción de ambas imágenes.
+Los cuatro servicios tienen health checks. `web` comprueba React y `/up`; `api` inicia Laravel y consulta PostgreSQL; `database` usa `pg_isready`; `worker` comprueba Laravel, PostgreSQL y las tablas de cola. El comando `app:queue-smoke` demuestra además que el worker procesa un Job real.
+
+Prueba reproducible de los cuatro servicios, HTTP, un Job real y conservación de datos tras recrear los contenedores:
+
+```powershell
+.\scripts\docker-smoke.ps1 -Recreate
+```
+
+Si usaste un nombre o puerto personalizados, repítelos: `.\scripts\docker-smoke.ps1 -ProjectName smartbusiness-prueba -Port 18080 -Recreate`.
+
+Detener y conservar información: `docker compose down`. Volver a levantar: `docker compose up -d --wait`. El volumen `postgres-data` conserva los datos incluso cuando se recrea el contenedor. Solo `docker compose down -v` elimina el volumen y debe utilizarse de forma intencional.
 
 ## CI/CD y Git
 
-CI valida Composer, formato PHP, tests PostgreSQL en PHP 8.2/8.4, tests/build React, auditorías de dependencias y build Docker. El workflow Azure es manual y requiere recursos previamente configurados. No se ha ejecutado en GitHub ni Azure desde esta entrega.
+CI valida Composer, formato PHP, tests PostgreSQL en PHP 8.2/8.4, tests/build React y auditorías de dependencias. Después construye el stack Docker completo, migra, carga datos demo, comprueba los cuatro health checks y un Job real, recrea los contenedores y confirma que PostgreSQL conservó los datos. El workflow Azure es manual y requiere recursos previamente configurados. No se ha ejecutado en GitHub ni Azure desde esta entrega.
 
 main contiene la instalación inicial; feat/smartbusiness-v1 contiene commits separados por área. No hay remoto ni Pull Request creados. Al publicar, configura tu remoto y abre un PR desde esta branch. No subas .env, .local/, vendor/ ni node_modules/.
 
