@@ -10,7 +10,7 @@ class MovementResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            ...$this->resource->only('id', 'product_id', 'sale_id', 'quantity_delta', 'balance_after', 'reason'),
+            ...$this->resource->only('id', 'product_id', 'sale_id', 'quantity_delta', 'balance_after', 'reason', 'reference_number'),
             'type' => $this->type->value,
             'created_at' => $this->created_at->toIso8601String(),
             'product' => $this->whenLoaded('product', fn () => $this->product->only('id', 'name', 'sku')),

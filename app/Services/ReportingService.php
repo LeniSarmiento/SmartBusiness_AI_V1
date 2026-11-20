@@ -47,4 +47,54 @@ class ReportingService
             'recent_sales' => Sale::forOrganization($organization)->with('seller')->latest('id')->limit(5)->get(),
         ];
     }
+
+    public function inventoryValuation(Organization $organization): array
+    {
+        $products = Product::forOrganization($organization)
+            ->where('active', true)
+            ->orderBy('name')
+            ->get();
+
+        $items = [];
+        $totalUnits = 0;
+        $totalCostValue = 0;
+        $totalSaleValue = 0;
+
+        foreach ($products as $product) {
+            $stock = (int) $product->current_stock;
+            $purchasePrice = (float) $product->purchase_price;
+            $salePrice = (float) $product->sale_price;
+
+            $costVal = round($stock * $purchasePrice, 2);
+            $saleVal = round($stock * $salePrice, 2);
+
+            $totalUnits += $stock;
+            $totalCostValue += $costVal;
+            $totalSaleValue += $saleVal;
+
+            $items[] = [
+                'id' => $product->id,
+                'name' => $product->name,
+                'sku' => $product->sku,
+                'current_stock' => $stock,
+                'purchase_price' => number_format($purchasePrice, 2, '.', ''),
+                'sale_price' => number_format($salePrice, 2, '.', ''),
+                'cost_value' => number_format($costVal, 2, '.', ''),
+                'sale_value' => number_format($saleVal, 2, '.', ''),
+                'potential_profit' => number_format($saleVal - $costVal, 2, '.', ''),
+            ];
+        }
+
+        return [
+            'currency' => $organization->currency,
+            'summary' => [
+                'total_products' => count($products),
+                'total_units' => $totalUnits,
+                'total_cost_value' => number_format($totalCostValue, 2, '.', ''),
+                'total_sale_value' => number_format($totalSaleValue, 2, '.', ''),
+                'potential_profit' => number_format($totalSaleValue - $totalCostValue, 2, '.', ''),
+            ],
+            'products' => $items,
+        ];
+    }
 }

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\AdjustmentReasonController;
 use App\Http\Controllers\Api\V1\AiToolController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CategoryController;
@@ -9,8 +10,10 @@ use App\Http\Controllers\Api\V1\InventoryController;
 use App\Http\Controllers\Api\V1\InvitationController;
 use App\Http\Controllers\Api\V1\MemberController;
 use App\Http\Controllers\Api\V1\ProductController;
+use App\Http\Controllers\Api\V1\ReportController;
 use App\Http\Controllers\Api\V1\SaleController;
 use App\Http\Controllers\Api\V1\SecurityAuditController;
+use App\Http\Controllers\Api\V1\StockAlertController;
 use App\Http\Controllers\Api\V1\SupplierController;
 use Illuminate\Support\Facades\Route;
 
@@ -39,8 +42,12 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
             Route::apiResource('suppliers', SupplierController::class)->whereNumber('supplier')->middlewareFor(['store', 'update', 'destroy'], 'throttle:business-write');
             Route::apiResource('categories', CategoryController::class)->whereNumber('category')->middlewareFor(['store', 'update', 'destroy'], 'throttle:business-write');
             Route::apiResource('products', ProductController::class)->whereNumber('product')->middlewareFor(['store', 'update', 'destroy'], 'throttle:business-write');
+            Route::get('inventory-movements/export', [InventoryController::class, 'export']);
             Route::get('inventory-movements', [InventoryController::class, 'index']);
             Route::post('inventory-movements', [InventoryController::class, 'store'])->middleware('throttle:business-write');
+            Route::apiResource('adjustment-reasons', AdjustmentReasonController::class)->whereNumber('adjustment_reason')->middlewareFor(['store', 'update', 'destroy'], 'throttle:business-write');
+            Route::get('stock-alerts', [StockAlertController::class, 'index']);
+            Route::get('reports/inventory-valuation', [ReportController::class, 'inventoryValuation']);
             Route::apiResource('sales', SaleController::class)->only('index', 'show', 'store')->whereNumber('sale')->middlewareFor('store', 'throttle:business-write');
             Route::post('sales/{sale}/cancel', [SaleController::class, 'cancel'])->whereNumber('sale')->middleware('throttle:business-write');
             Route::get('members', [MemberController::class, 'index']);

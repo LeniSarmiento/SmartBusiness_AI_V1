@@ -53,6 +53,10 @@ class AdjustInventoryTool extends BaseTool
                     'type' => 'string',
                     'description' => 'Motivo detallado del movimiento de inventario (mínimo 5 caracteres).',
                 ],
+                'reference_number' => [
+                    'type' => 'string',
+                    'description' => 'Número de documento o referencia externa (opcional, ej: FACT-1029, REM-001).',
+                ],
             ],
             'required' => ['product_id', 'type', 'quantity', 'reason'],
         ];
@@ -68,12 +72,14 @@ class AdjustInventoryTool extends BaseTool
                 'integer',
                 Rule::exists('products', 'id')
                     ->where('organization_id', $organization->id)
+                    ->where('active', true)
                     ->whereNull('deleted_at'),
             ],
             'type' => ['required', 'in:entry,exit,adjustment'],
             'quantity' => ['required', 'integer', 'between:1,1000000'],
             'direction' => ['required_if:type,adjustment', 'nullable', 'in:increase,decrease'],
             'reason' => ['required', 'string', 'min:5', 'max:500'],
+            'reference_number' => ['nullable', 'string', 'max:100'],
         ]);
 
         $movement = $this->inventoryService->adjust($organization, $user, $validated);
@@ -88,6 +94,7 @@ class AdjustInventoryTool extends BaseTool
             'quantity_delta' => $movement->quantity_delta,
             'balance_after' => $movement->balance_after,
             'reason' => $movement->reason,
+            'reference_number' => $movement->reference_number,
             'created_at' => $movement->created_at->toIso8601String(),
         ];
     }

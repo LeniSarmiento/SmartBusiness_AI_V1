@@ -36,4 +36,14 @@ class Organization extends Model
     {
         return $this->hasMany(SecurityAuditLog::class);
     }
+
+    public function adjustmentReasons(): HasMany
+    {
+        return $this->hasMany(AdjustmentReason::class);
+    }
+
+    public function stockAlerts(): HasMany
+    {
+        return $this->hasMany(StockAlert::class);
+    }
 }
