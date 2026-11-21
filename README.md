@@ -26,7 +26,7 @@ Sistema SaaS multiempresa para gestionar clientes, proveedores, productos, inven
 
 ## Tecnologías
 
-Laravel 12, PHP 8.2+ (Docker: PHP 8.4), Sanctum 4, PostgreSQL 17, React 19, TypeScript 5, Vite 7, PHPUnit 11, Vitest, Pint, Docker Compose y GitHub Actions. Se conserva Laravel 12 para funcionar con XAMPP PHP 8.2; planifica su actualización antes del fin de soporte de seguridad en febrero de 2027.
+Laravel 13, PHP 8.3+ (local y Docker: PHP 8.4), Sanctum 4, PostgreSQL 17, React 19, TypeScript 5, Vite 7, PHPUnit 12, Vitest, Pint, Docker Compose y GitHub Actions.
 
 ## Estructura
 
@@ -45,7 +45,7 @@ Laravel se mantiene en la raíz porque la carpeta recibida ya contenía esa inst
 
 ## Arranque en esta máquina (Windows)
 
-La entrega local incluye dependencias y un PostgreSQL portátil dentro de .local/ (no versionado). No se modificó php.ini ni se instaló un servicio Windows.
+La entrega local incluye dependencias, PHP 8.4 portátil en `.local/php` y PostgreSQL 17 portátil en `.local/pgsql` (no versionados). No se modificó la instalación global de XAMPP, `php.ini` del sistema ni servicios Windows. Consulta [la guía de migración local en Windows](docs/windows-php-migration.md).
 
 ```powershell
 cd C:\Users\lenin\Documents\Laravel\SmartBusiness_AI_V1
@@ -88,7 +88,7 @@ El script crea `.env` si falta, genera `APP_KEY` y una contraseña PostgreSQL lo
 
 Para una instalación nativa sin Docker:
 
-Requisitos: PHP >= 8.2 con pdo_pgsql, mbstring, openssl, bcmath, dom y xml; Composer; Node 22.12+ o 24; PostgreSQL 17.
+Requisitos: PHP >= 8.3 (recomendado 8.4) con pdo_pgsql, mbstring, openssl, bcmath, dom, intl, zip y xml; Composer; Node 22.12+ o 24; PostgreSQL 17.
 
 1. `composer install`
 2. Copia `.env.example` a `.env`.
@@ -128,7 +128,7 @@ Localmente, los enlaces de recuperación se escriben en storage/logs/laravel.log
 .\scripts\php.ps1 vendor/bin/phpunit --testsuite Unit
 .\scripts\php.ps1 vendor/bin/phpunit --testsuite Integration
 .\scripts\php.ps1 vendor/bin/phpunit --testsuite Functional
-php vendor/bin/pint --test
+.\scripts\php.ps1 vendor/bin/pint --test
 npm --prefix frontend test
 npm --prefix frontend run build
 ```
@@ -174,7 +174,7 @@ Detener y conservar información: `docker compose down`. Volver a levantar: `doc
 
 ## CI/CD y Git
 
-CI valida Composer, formato PHP, tests PostgreSQL en PHP 8.2/8.4, tests/build React y auditorías de dependencias. Después construye el stack Docker completo, migra, carga datos demo, comprueba los cuatro health checks y un Job real, recrea los contenedores y confirma que PostgreSQL conservó los datos. El workflow Azure es manual y requiere recursos previamente configurados. No se ha ejecutado en GitHub ni Azure desde esta entrega.
+CI valida Composer, formato PHP, tests PostgreSQL en PHP 8.3/8.4, tests/build React y auditorías de dependencias. Después construye el stack Docker completo, migra, carga datos demo, comprueba los cuatro health checks y un Job real, recrea los contenedores y confirma que PostgreSQL conservó los datos. El workflow Azure es manual y requiere recursos previamente configurados. No se ha ejecutado en GitHub ni Azure desde esta entrega.
 
 main contiene la instalación inicial; feat/smartbusiness-v1 contiene commits separados por área. No hay remoto ni Pull Request creados. Al publicar, configura tu remoto y abre un PR desde esta branch. No subas .env, .local/, vendor/ ni node_modules/.
 
@@ -185,6 +185,8 @@ main contiene la instalación inicial; feat/smartbusiness-v1 contiene commits se
 - [Endpoints y ejemplos](docs/api.md)
 - [Estrategia de pruebas](docs/testing.md)
 - [Seguridad operativa y checklist](docs/security.md)
+- [Migración local en Windows a PHP 8.3+ y Laravel 13](docs/windows-php-migration.md)
+- [Backlog pendiente para Antigravity](docs/antigravity-backlog.md)
 - [Guía Azure y despliegue](infra/azure/README.md)
 - [Roadmap y primera tarea de mentoría](docs/roadmap.md)
 

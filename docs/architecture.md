@@ -47,4 +47,4 @@ Laravel y cada conexión PostgreSQL utilizan UTC. Los indicadores diarios y mens
 
 Roles globales fijos y membresías por empresa. Las invitaciones permiten incorporar usuarios nuevos o cuentas existentes mediante aceptación segura. Dashboard con últimos 30 días y rankings mensuales. El backend de Tool Calling existe, pero todavía no hay asistente conectado a un modelo ni RAG. Google Fonts es opcional y tiene fuentes locales de respaldo.
 
-Laravel 12 se conserva por el PHP 8.2 instalado. Su soporte de seguridad finaliza el 24-02-2027 según [la política oficial](https://laravel.com/docs/12.x/releases); antes de publicar a largo plazo se debe migrar a PHP 8.3+ y Laravel 13.
+El proyecto ejecuta oficialmente PHP 8.3+ (PHP 8.4 en entorno local portátil y Docker) y Laravel 13, con guía de migración local para Windows en [`docs/windows-php-migration.md`](windows-php-migration.md).

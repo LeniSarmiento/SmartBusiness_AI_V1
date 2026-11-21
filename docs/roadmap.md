@@ -16,7 +16,8 @@ Implementado localmente: esquema, organizaciones, membresías, roles, permisos, 
 
 ## Siguiente etapa
 
-- PHP 8.3+ / Laravel 13 antes de finalizar el soporte de Laravel 12.
+El detalle ejecutable, orden de trabajo, modelos recomendados y criterios de aceptación se mantiene en [`docs/antigravity-backlog.md`](antigravity-backlog.md).
+
 - Conectar el Tool Calling existente a un proveedor LLM mediante Laravel AI SDK y crear la experiencia de chat en React.
 - Añadir RAG multiempresa: documentos, extracción en cola, embeddings, búsqueda vectorial, citas y autorización por organización.
 - Implementar múltiples almacenes siguiendo `docs/multi-warehouse-roadmap.md`; actualmente solo existe el diseño.

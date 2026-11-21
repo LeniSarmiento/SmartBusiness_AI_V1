@@ -18,6 +18,11 @@ No usar Bearer tokens para la SPA. Las rutas register/login requieren un origen 
 | POST | /auth/forgot-password | Enlace por correo (respuesta genérica) |
 | POST | /auth/reset-password | Token, email, password, password_confirmation |
 | PATCH | /auth/profile | Nombre, correo y current_password |
+| POST | /auth/change-password | Cambio de contraseña y cierre de otras sesiones |
+| GET | /auth/email/verify/{id}/{hash} | Verificación de correo con URL firmada |
+| POST | /auth/email/resend | Reenviar enlace de verificación |
+| GET | /invitations/{token} | Inspeccionar invitación pendiente |
+| POST | /invitations/{token}/accept | Aceptar invitación a una organización |
 | GET/POST | /organizations/{org}/customers | Buscar/listar o crear clientes |
 | GET/PATCH/DELETE | /organizations/{org}/customers/{id} | Consultar/editar/archivar |
 | GET | /organizations/{org}/customers/{id}/sales | Historial paginado |
@@ -29,14 +34,24 @@ No usar Bearer tokens para la SPA. Las rutas register/login requieren un origen 
 | GET/POST | /organizations/{org}/products | Catálogo |
 | GET/PATCH/DELETE | /organizations/{org}/products/{id} | Producto |
 | GET/POST | /organizations/{org}/inventory-movements | Historial o movimiento manual |
+| GET | /organizations/{org}/inventory-movements/export | Exportar historial filtrado en CSV |
+| GET/POST | /organizations/{org}/adjustment-reasons | Listar o crear motivos de ajuste |
+| PUT/PATCH/DELETE | /organizations/{org}/adjustment-reasons/{id} | Editar o eliminar motivo de ajuste |
+| GET | /organizations/{org}/stock-alerts | Alertas de stock bajo |
+| GET | /organizations/{org}/reports/inventory-valuation | Reporte de valorización de inventario |
 | GET/POST | /organizations/{org}/sales | Listar o completar una venta |
 | GET | /organizations/{org}/sales/{id} | Venta y líneas |
 | POST | /organizations/{org}/sales/{id}/cancel | Anular con reason |
 | GET | /organizations/{org}/dashboard | Indicadores reales de la empresa |
 | GET/POST | /organizations/{org}/members | Equipo o crear usuario |
-| PATCH | /organizations/{org}/members/{id} | Cambiar role |
+| PATCH/DELETE | /organizations/{org}/members/{id} | Cambiar rol, activar/desactivar o retirar miembro |
+| GET/POST | /organizations/{org}/invitations | Listar o enviar invitaciones por enlace |
+| DELETE | /organizations/{org}/invitations/{id} | Revocar invitación pendiente |
+| GET | /organizations/{org}/security-audit-logs | Bitácora de auditoría de seguridad |
+| GET | /organizations/{org}/ai/tools | Esquemas de herramientas IA autorizadas por rol |
+| POST | /organizations/{org}/ai/tools/execute | Ejecutar herramienta IA autorizada |
 
-Catálogo: search, page, per_page, active=1/0. Productos: low_stock=1. Ventas: status=completed/cancelled, from=YYYY-MM-DD, to=YYYY-MM-DD, search por cliente. Fechas interpretadas en la zona de la organización. Movimientos: product_id.
+Catálogo: search, page, per_page, active=1/0. Productos: low_stock=1. Ventas: status=completed/cancelled, from=YYYY-MM-DD, to=YYYY-MM-DD, search por cliente. Fechas interpretadas en la zona de la organización. Movimientos: product_id, user_id, type, from, to, search.
 
 ## Crear una venta
 

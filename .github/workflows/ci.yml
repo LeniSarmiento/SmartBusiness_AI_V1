@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        php: ['8.2', '8.4']
+        php: ['8.3', '8.4']
     services:
       postgres:
         image: postgres:17-alpine
@@ -94,6 +94,17 @@ jobs:
       - name: Verify services, HTTP and queue
         shell: pwsh
         run: ./scripts/docker-smoke.ps1 -ProjectName smartbusiness-ci -Port 8080 -Recreate
+      - name: Performance smoke test
+        run: |
+          docker run --rm --network host \
+            --volume "$GITHUB_WORKSPACE/tests/Performance/k6:/scripts:ro" \
+            --env BASE_URL=http://127.0.0.1:8080 \
+            --env APP_ORIGIN=http://localhost:8080 \
+            --env LOAD_TEST_EMAIL=demo@smartbusiness.test \
+            --env 'LOAD_TEST_PASSWORD=SmartBusiness2026!' \
+            --env K6_VUS=1 \
+            --env K6_DURATION=5s \
+            grafana/k6:2.3.0 run /scripts/smoke.js
       - name: Show container logs on failure
         if: failure()
         run: docker compose -p smartbusiness-ci logs --tail 150

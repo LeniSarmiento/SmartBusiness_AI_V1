@@ -28,7 +28,11 @@ class ConcurrencyTest extends TestCase
         app(InventoryService::class)->adjust($organization, $user, ['product_id' => $product->id, 'type' => 'entry', 'quantity' => 1, 'reason' => 'One available unit']);
         $command = [PHP_BINARY];
         if (PHP_OS_FAMILY === 'Windows') {
-            $command = [...$command, '-d', 'extension=pdo_pgsql'];
+            $probe = new Process([PHP_BINARY, '-m']);
+            $probe->mustRun();
+            if (! preg_match('/^pdo_pgsql$/m', $probe->getOutput())) {
+                $command = [...$command, '-d', 'extension=pdo_pgsql'];
+            }
         }
         $command = [...$command, base_path('tests/Support/attempt-sale.php'), (string) $organization->id, (string) $user->id, (string) $product->id];
         $connection = config('database.connections.pgsql');
