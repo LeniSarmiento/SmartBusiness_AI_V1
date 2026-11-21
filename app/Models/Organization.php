@@ -46,4 +46,9 @@ class Organization extends Model
     {
         return $this->hasMany(StockAlert::class);
     }
+
+    public function aiConversations(): HasMany
+    {
+        return $this->hasMany(AiConversation::class);
+    }
 }

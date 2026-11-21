@@ -20,6 +20,11 @@ class User extends Authenticatable implements MustVerifyEmail
         return $this->hasMany(OrganizationMembership::class);
     }
 
+    public function aiConversations(): HasMany
+    {
+        return $this->hasMany(AiConversation::class);
+    }
+
     /**
      * The attributes that are mass assignable.
      *

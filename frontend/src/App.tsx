@@ -9,6 +9,7 @@ import {
 } from "react-router-dom";
 import {
     ArrowUpRight,
+    Bot,
     Boxes,
     Building2,
     ChevronDown,
@@ -37,11 +38,19 @@ import { NewSalePage, SaleDetailPage, SalesPage } from "./pages/SalesPage";
 import { MembersPage, ProfilePage, roleLabel } from "./pages/SettingsPage";
 
 const Dashboard = lazy(() => import("./pages/Dashboard"));
+const AiAssistantPage = lazy(() => import("./pages/AiAssistantPage"));
 const nav = [
     {
         to: "/",
         label: "Resumen general",
         icon: LayoutDashboard,
+        permission: "reports.read",
+        group: "PRINCIPAL",
+    },
+    {
+        to: "/assistant",
+        label: "Asistente IA",
+        icon: Bot,
         permission: "reports.read",
         group: "PRINCIPAL",
     },
@@ -325,6 +334,14 @@ export default function App() {
                         }
                     />
                 ))}
+                <Route
+                    path="assistant"
+                    element={
+                        <Allowed permission="reports.read">
+                            <AiAssistantPage />
+                        </Allowed>
+                    }
+                />
                 <Route
                     path="inventory"
                     element={

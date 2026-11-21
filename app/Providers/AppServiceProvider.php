@@ -47,6 +47,10 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('sensitive', fn ($request) => Limit::perMinute(10)->by(($request->user()?->id ?? 'guest').'|'.$request->ip()));
         RateLimiter::for('business-write', fn ($request) => Limit::perMinute(60)->by(($request->user()?->id ?? 'guest').'|'.$organizationKey($request)));
         RateLimiter::for('ai-tools', fn ($request) => Limit::perMinute(20)->by(($request->user()?->id ?? 'guest').'|'.$organizationKey($request)));
+        RateLimiter::for('ai-chat', fn ($request) => [
+            Limit::perMinute(10)->by(($request->user()?->id ?? 'guest').'|'.$organizationKey($request)),
+            Limit::perHour(100)->by(($request->user()?->id ?? 'guest').'|'.$organizationKey($request)),
+        ]);
         RateLimiter::for('api', fn ($request) => [
             Limit::perMinute(180)->by('ip:'.$request->ip()),
             Limit::perMinute(120)->by('principal:'.($request->user()?->id ?? $request->ip())),

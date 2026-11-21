@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Api\V1\AdjustmentReasonController;
+use App\Http\Controllers\Api\V1\AiConversationController;
 use App\Http\Controllers\Api\V1\AiToolController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CategoryController;
@@ -60,6 +61,11 @@ Route::prefix('v1')->middleware('throttle:api')->group(function () {
             Route::delete('invitations/{invitation}', [InvitationController::class, 'destroy'])->whereNumber('invitation')->middleware('throttle:sensitive');
             Route::get('ai/tools', [AiToolController::class, 'index']);
             Route::post('ai/tools/execute', [AiToolController::class, 'execute'])->middleware('throttle:ai-tools');
+            Route::get('ai/conversations', [AiConversationController::class, 'index']);
+            Route::post('ai/conversations', [AiConversationController::class, 'store'])->middleware('throttle:ai-chat');
+            Route::get('ai/conversations/{conversation}', [AiConversationController::class, 'show'])->whereNumber('conversation');
+            Route::post('ai/conversations/{conversation}/messages', [AiConversationController::class, 'message'])->whereNumber('conversation')->middleware('throttle:ai-chat');
+            Route::delete('ai/conversations/{conversation}', [AiConversationController::class, 'destroy'])->whereNumber('conversation');
         });
     });
 });

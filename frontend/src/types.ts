@@ -78,3 +78,24 @@ export type DashboardData = {
     top_customers: { customer_id: number; name: string; total: string }[];
     recent_sales: Sale[];
 };
+
+export type AiMessage = {
+    id: number;
+    role: "user" | "assistant";
+    content: string;
+    status: "pending" | "completed" | "failed";
+    metadata: {
+        tool_calls?: { id: string; name: string }[];
+    } | null;
+    created_at: string;
+};
+
+export type AiConversation = {
+    id: number;
+    title: string | null;
+    archived: boolean;
+    last_message_at: string | null;
+    created_at: string;
+    updated_at: string;
+    messages?: AiMessage[];
+};

@@ -3,6 +3,7 @@
 namespace App\Ai\Agents;
 
 use App\Ai\Tools\GetDashboardReportTool;
+use App\Models\AiConversation;
 use App\Models\Organization;
 use App\Models\User;
 use App\Services\ReportingService;
@@ -11,10 +12,12 @@ use InvalidArgumentException;
 use Laravel\Ai\Approvals\Decisions;
 use Laravel\Ai\Contracts\Agent;
 use Laravel\Ai\Contracts\AgentInput;
+use Laravel\Ai\Contracts\Conversational;
 use Laravel\Ai\Contracts\HasTools;
 use Laravel\Ai\Contracts\Tool;
 use Laravel\Ai\Enums\Lab;
 use Laravel\Ai\Exceptions\AiException;
+use Laravel\Ai\Messages\AssistantMessage;
 use Laravel\Ai\Messages\UserMessage;
 use Laravel\Ai\Promptable;
 use Laravel\Ai\Providers\Provider;
@@ -22,7 +25,7 @@ use Laravel\Ai\Responses\AgentResponse;
 use Laravel\Ai\Responses\StreamableAgentResponse;
 use Stringable;
 
-class BusinessAssistantAgent implements Agent, HasTools
+class BusinessAssistantAgent implements Agent, Conversational, HasTools
 {
     use Promptable {
         prompt as protected promptUsingSdk;
@@ -39,6 +42,7 @@ class BusinessAssistantAgent implements Agent, HasTools
         Organization|User $organization,
         Organization|User $user,
         ?ReportingService $reportingService = null,
+        private readonly ?AiConversation $conversation = null,
     ) {
         if ($organization instanceof Organization && $user instanceof User) {
             $this->organization = $organization;
@@ -62,6 +66,25 @@ class BusinessAssistantAgent implements Agent, HasTools
             'Responde únicamente con base en los indicadores devueltos por las herramientas autorizadas de la organización.',
             'No inventes cifras ni modifiques datos. Responde siempre en español de forma clara y concisa.',
         ]);
+    }
+
+    public function messages(): iterable
+    {
+        if (! $this->conversation) {
+            return [];
+        }
+
+        return $this->conversation->messages()
+            ->where('status', 'completed')
+            ->latest('id')
+            ->limit((int) config('ai.assistant.max_history_messages', 20))
+            ->get()
+            ->reverse()
+            ->map(fn ($message) => $message->role === 'assistant'
+                ? new AssistantMessage($message->content)
+                : new UserMessage($message->content))
+            ->values()
+            ->all();
     }
 
     /**

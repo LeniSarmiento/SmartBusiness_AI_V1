@@ -26,6 +26,8 @@ return [
         'provider' => env('AI_ASSISTANT_PROVIDER'),
         'model' => env('AI_ASSISTANT_MODEL'),
         'timeout' => (int) env('AI_ASSISTANT_TIMEOUT', 60),
+        'max_input_chars' => (int) env('AI_ASSISTANT_MAX_INPUT_CHARS', 4000),
+        'max_history_messages' => (int) env('AI_ASSISTANT_MAX_HISTORY_MESSAGES', 20),
     ],
 
     /*
