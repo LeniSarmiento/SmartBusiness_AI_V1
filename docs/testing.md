@@ -56,3 +56,7 @@ Antes de publicar una versión se comprueba manualmente en navegador:
 6. Consola del navegador sin errores de aplicación.
 
 Estas comprobaciones complementan las pruebas automatizadas; no las reemplazan.
+
+## Pruebas de rendimiento
+
+`tests/Performance/k6/smoke.js` reutiliza una sesión autenticada y mide dashboard, productos, inventario y ventas sin modificar datos. Los umbrales iniciales fallan el proceso cuando los errores alcanzan 1 % o la latencia p95 excede los límites documentados. CI ejecuta una muestra breve después del Docker E2E; las pruebas prolongadas deben ejecutarse en staging. Consulta `docs/observability.md`.

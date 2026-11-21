@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use App\Models\Organization;
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class EnsureOrganizationMember
 {
@@ -21,6 +22,10 @@ class EnsureOrganizationMember
             abort(403, 'Tu membresía en esta organización ha sido desactivada.');
         }
         $request->attributes->set('membership', $membership);
+        Log::shareContext([
+            'user_id' => $request->user()->getAuthIdentifier(),
+            'organization_id' => $organization->getKey(),
+        ]);
 
         return $next($request);
     }

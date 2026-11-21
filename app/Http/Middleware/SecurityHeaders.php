@@ -4,18 +4,13 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class SecurityHeaders
 {
     public function handle(Request $request, Closure $next): Response
     {
-        $requestId = $this->requestId($request);
-        $request->attributes->set('request_id', $requestId);
-
         $response = $next($request);
-        $response->headers->set('X-Request-ID', $requestId);
         $response->headers->set('X-Content-Type-Options', 'nosniff');
         $response->headers->set('X-Frame-Options', 'DENY');
         $response->headers->set('Referrer-Policy', 'strict-origin-when-cross-origin');
@@ -29,14 +24,5 @@ class SecurityHeaders
         }
 
         return $response;
-    }
-
-    private function requestId(Request $request): string
-    {
-        $candidate = (string) $request->header('X-Request-ID', '');
-
-        return preg_match('/\A[a-zA-Z0-9._-]{8,100}\z/', $candidate)
-            ? $candidate
-            : (string) Str::uuid();
     }
 }

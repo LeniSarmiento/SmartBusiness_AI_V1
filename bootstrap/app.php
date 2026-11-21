@@ -2,6 +2,7 @@
 
 use App\Http\Middleware\EnforceRequestSize;
 use App\Http\Middleware\EnsureOrganizationMember;
+use App\Http\Middleware\RequestContext;
 use App\Http\Middleware\SecurityHeaders;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -18,12 +19,22 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->statefulApi();
+        $middleware->append(RequestContext::class);
         $middleware->append(SecurityHeaders::class);
         $middleware->api(append: [EnforceRequestSize::class]);
         $middleware->alias(['organization' => EnsureOrganizationMember::class]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(fn ($request) => $request->is('api/*') || $request->expectsJson());
+        $exceptions->respond(function ($response, Throwable $exception, Request $request) {
+            $requestId = $request->attributes->get('request_id');
+
+            if ($requestId) {
+                $response->headers->set('X-Request-ID', (string) $requestId);
+            }
+
+            return $response;
+        });
         $exceptions->render(function (Throwable $exception, Request $request) {
             if (! app()->isProduction() || (! $request->is('api/*') && ! $request->expectsJson())) {
                 return null;
@@ -37,6 +48,6 @@ return Application::configure(basePath: dirname(__DIR__))
             return response()->json([
                 'message' => 'Ocurrió un error interno. Inténtalo nuevamente.',
                 'request_id' => $request->attributes->get('request_id'),
-            ], $status);
+            ], $status)->header('X-Request-ID', (string) $request->attributes->get('request_id'));
         });
     })->create();

@@ -133,6 +133,13 @@ npm --prefix frontend test
 npm --prefix frontend run build
 ```
 
+Diagnóstico y carga local sobre el stack Docker:
+
+```powershell
+.\scripts\php.ps1 artisan app:diagnostics --json
+.\scripts\load-test.ps1 -Email demo@smartbusiness.test -Password '<contraseña-local>'
+```
+
 En PHP con pdo_pgsql ya habilitado: `php artisan test`. En XAMPP se usa PHPUnit directamente porque el subproceso de artisan test no hereda la opción -d de PHP. PHPUnit fija **smartbusiness_test**, nunca la base de desarrollo. Las suites se ejecutan secuencialmente porque las pruebas con migraciones reconstruyen esa base. La prueba de concurrencia levanta dos procesos PHP y verifica que solo uno puede vender la última unidad.
 
 Cobertura: unidades monetarias aisladas; integración de servicios con PostgreSQL; flujo funcional completo desde el registro de una empresa hasta una venta y su anulación; autenticación, CSRF, rate limit, permisos, aislamiento, claves foráneas, stock negativo, rollback, idempotencia, catálogo, zonas horarias y concurrencia. Consulta [la estrategia de pruebas](docs/testing.md). No equivale a una auditoría de seguridad ni a una prueba de carga.
@@ -185,6 +192,7 @@ main contiene la instalación inicial; feat/smartbusiness-v1 contiene commits se
 - [Endpoints y ejemplos](docs/api.md)
 - [Estrategia de pruebas](docs/testing.md)
 - [Seguridad operativa y checklist](docs/security.md)
+- [Observabilidad, diagnóstico y rendimiento](docs/observability.md)
 - [Migración local en Windows a PHP 8.3+ y Laravel 13](docs/windows-php-migration.md)
 - [Backlog pendiente para Antigravity](docs/antigravity-backlog.md)
 - [Guía Azure y despliegue](infra/azure/README.md)

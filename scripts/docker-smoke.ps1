@@ -59,6 +59,7 @@ function Invoke-SmokeChecks {
     Assert-HttpEndpoints
     Invoke-Compose @('exec', '-T', 'api', 'php', 'artisan', 'app:health-check')
     Invoke-Compose @('exec', '-T', 'worker', 'php', 'artisan', 'app:health-check', '--queue')
+    Invoke-Compose @('exec', '-T', 'api', 'php', 'artisan', 'app:diagnostics', '--fail-on-failed-jobs')
     Invoke-Compose @('exec', '-T', 'api', 'php', 'artisan', 'app:queue-smoke', '--timeout=45')
 }
 
